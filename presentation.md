@@ -1,15 +1,7 @@
----
-marp: true
-theme: default
-paginate: true
----
-
 # PC Sales Website Project
 ## Modern E-Commerce Solution with React & Supabase
 
----
-
-## 1. Project Overview
+### 1. Project Overview
 
 ### Tech Stack
 - Frontend: React + TypeScript + Vite

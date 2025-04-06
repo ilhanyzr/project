@@ -1,16 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Laptop, LogOut, Settings } from 'lucide-react';
+import { ShoppingCart, User, Laptop, LogOut, Settings, Search, X } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import { supabase } from '../lib/supabase';
+
+interface SearchResult {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  image: string;
+}
 
 const Navbar = () => {
   const cartItems = useCartStore((state) => state.items);
   const navigate = useNavigate();
   const [user, setUser] = React.useState<any>(null);
   const [isAdmin, setIsAdmin] = React.useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Check current auth status
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
@@ -23,22 +35,124 @@ const Navbar = () => {
       setIsAdmin(session?.user?.email === 'admin@example.com');
     });
 
-    return () => subscription.unsubscribe();
+    // Add click outside listener
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsSearching(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  useEffect(() => {
+    const searchProducts = async () => {
+      if (searchTerm.length < 2) {
+        setSearchResults([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, price, category, image')
+        .ilike('name', `%${searchTerm}%`)
+        .limit(5);
+
+      if (!error && data) {
+        setSearchResults(data);
+      }
+    };
+
+    const debounce = setTimeout(searchProducts, 300);
+    return () => clearTimeout(debounce);
+  }, [searchTerm]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate('/');
   };
 
+  const handleSearchSelect = (id: string) => {
+    setSearchTerm('');
+    setIsSearching(false);
+    navigate(`/product/${id}`);
+  };
+
   return (
     <nav className="bg-white shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <Laptop className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold">PC Store</span>
-          </Link>
+          <div className="flex items-center space-x-8">
+            <Link to="/" className="flex items-center space-x-2">
+              <Laptop className="h-8 w-8 text-blue-600" />
+              <span className="text-xl font-bold">PC Store</span>
+            </Link>
+
+            {/* Search Bar */}
+            <div className="relative" ref={searchRef}>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Ürün ara..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setIsSearching(true);
+                  }}
+                  onFocus={() => setIsSearching(true)}
+                  className="pl-10 pr-4 py-2 w-64 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+                {searchTerm && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSearchResults([]);
+                    }}
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Search Results Dropdown */}
+              {isSearching && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border z-50">
+                  {searchResults.map((result) => (
+                    <button
+                      key={result.id}
+                      onClick={() => handleSearchSelect(result.id)}
+                      className="w-full px-4 py-2 hover:bg-gray-50 flex items-center space-x-3 text-left"
+                    >
+                      <img
+                        src={result.image}
+                        alt={result.name}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+                      <div>
+                        <div className="font-medium">{result.name}</div>
+                        <div className="text-sm text-gray-500">
+                          ₺{result.price.toLocaleString('tr-TR')}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* No Results Message */}
+              {isSearching && searchTerm.length >= 2 && searchResults.length === 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border p-4 text-center text-gray-500 z-50">
+                  Ürün bulunamadı
+                </div>
+              )}
+            </div>
+          </div>
           
           <div className="flex items-center space-x-6">
             <Link to="/products" className="hover:text-blue-600">Products</Link>
