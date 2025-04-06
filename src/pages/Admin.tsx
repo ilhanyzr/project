@@ -121,7 +121,7 @@ const Admin = () => {
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
@@ -135,7 +135,7 @@ const Admin = () => {
         .from('orders')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       setOrders(data || []);
     } catch (error) {
@@ -150,7 +150,7 @@ const Admin = () => {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(100);
-      
+
       if (error) throw error;
       setAuditLogs(data || []);
     } catch (error) {
@@ -166,8 +166,8 @@ const Admin = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     if (editingId) {
-      setProducts(products.map(p => 
-        p.id === editingId 
+      setProducts(products.map(p =>
+        p.id === editingId
           ? { ...p, [name]: name === 'specs' ? value.split(',') : name === 'price' || name === 'rating' || name === 'stock' ? Number(value) : value }
           : p
       ));
@@ -187,7 +187,7 @@ const Admin = () => {
         .select();
 
       if (error) throw error;
-      
+
       showMessage('success', 'Ürün başarıyla eklendi');
       setProducts([...(data || []), ...products]);
       setNewProduct({
@@ -216,7 +216,7 @@ const Admin = () => {
         .eq('id', id);
 
       if (error) throw error;
-      
+
       showMessage('success', 'Ürün başarıyla güncellendi');
       setEditingId(null);
     } catch (error) {
@@ -232,7 +232,7 @@ const Admin = () => {
         .eq('id', id);
 
       if (error) throw error;
-      
+
       showMessage('success', 'Ürün başarıyla silindi');
       setProducts(products.filter(p => p.id !== id));
     } catch (error) {
@@ -260,7 +260,7 @@ const Admin = () => {
           <Package className="w-12 h-12 text-blue-500" />
         </div>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-md p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -270,7 +270,7 @@ const Admin = () => {
           <ShoppingCart className="w-12 h-12 text-green-500" />
         </div>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-md p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -280,7 +280,7 @@ const Admin = () => {
           <BarChart3 className="w-12 h-12 text-purple-500" />
         </div>
       </div>
-      
+
       <div className="bg-white rounded-xl shadow-md p-6">
         <div className="flex items-center justify-between">
           <div>
@@ -443,9 +443,8 @@ const Admin = () => {
                         className="w-full p-2 border rounded-lg"
                       />
                     ) : (
-                      <span className={`px-3 py-1 rounded-full text-sm ${
-                        product.stock < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-sm ${product.stock < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                        }`}>
                         {product.stock}
                       </span>
                     )}
@@ -539,12 +538,11 @@ const Admin = () => {
                 <td className="p-4">{order.user_id.slice(0, 8)}...</td>
                 <td className="p-4">₺{order.total_amount.toLocaleString('tr-TR')}</td>
                 <td className="p-4">
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    order.status === 'completed' ? 'bg-green-100 text-green-700' :
+                  <span className={`px-3 py-1 rounded-full text-sm ${order.status === 'completed' ? 'bg-green-100 text-green-700' :
                     order.status === 'processing' ? 'bg-blue-100 text-blue-700' :
-                    order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
+                      order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                        'bg-gray-100 text-gray-700'
+                    }`}>
                     {order.status}
                   </span>
                 </td>
@@ -569,11 +567,10 @@ const Admin = () => {
               <span className="text-sm text-gray-500">
                 {new Date(log.created_at).toLocaleString('tr-TR')}
               </span>
-              <span className={`px-3 py-1 rounded-full text-sm ${
-                log.operation === 'INSERT' ? 'bg-green-100 text-green-700' :
+              <span className={`px-3 py-1 rounded-full text-sm ${log.operation === 'INSERT' ? 'bg-green-100 text-green-700' :
                 log.operation === 'UPDATE' ? 'bg-blue-100 text-blue-700' :
-                'bg-red-100 text-red-700'
-              }`}>
+                  'bg-red-100 text-red-700'
+                }`}>
                 {log.operation}
               </span>
             </div>
@@ -605,9 +602,8 @@ const Admin = () => {
       </div>
 
       {message.text && (
-        <div className={`mb-4 p-4 rounded-lg flex items-center gap-2 ${
-          message.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
-        }`}>
+        <div className={`mb-4 p-4 rounded-lg flex items-center gap-2 ${message.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+          }`}>
           {message.type === 'error' ? (
             <AlertTriangle className="w-5 h-5" />
           ) : (
@@ -620,36 +616,32 @@ const Admin = () => {
       <div className="flex gap-4 mb-8">
         <button
           onClick={() => setActiveTab('dashboard')}
-          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-            activeTab === 'dashboard' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-          }`}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${activeTab === 'dashboard' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
         >
           <BarChart3 className="w-5 h-5" />
           Dashboard
         </button>
         <button
           onClick={() => setActiveTab('products')}
-          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-            activeTab === 'products' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-          }`}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${activeTab === 'products' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
         >
           <Package className="w-5 h-5" />
           Ürünler
         </button>
         <button
           onClick={() => setActiveTab('orders')}
-          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-            activeTab === 'orders' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-          }`}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${activeTab === 'orders' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
         >
           <ShoppingCart className="w-5 h-5" />
           Siparişler
         </button>
         <button
           onClick={() => setActiveTab('audit')}
-          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${
-            activeTab === 'audit' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-          }`}
+          className={`px-4 py-2 rounded-lg flex items-center gap-2 ${activeTab === 'audit' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
         >
           <AlertCircle className="w-5 h-5" />
           Denetim
